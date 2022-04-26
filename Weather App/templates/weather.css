@@ -12,27 +12,24 @@ img{
 
 .city_name {
     position: absolute;
-    font-size:7vw;
-    top: 25%;
+    color:#C6808B;
+    font-size: 100px;
+    top: 250px;
     left: 50%;
-    color: #C6808B;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -80%);
+    padding: 10px;
 }
 
 .current_temp {
     position: absolute;
-    font-size: 100px;
-    top: 25%;
+    color:white;
+    font-size: 50px;
+    top: 325px;
     left: 50%;
-    color: white;
-    transform: translate(-15%);
+    transform: translate(-50%, -80%);
+    padding: 10px;
 }
 
-.current_temp {
-    top: 240px;
-    left: calc(50% - 6vh);
-    font-size: 6vh;
-}
 
 #humidity, #pressure, #wind_speed {
     position: absolute;
@@ -128,8 +125,17 @@ ul {
     font-weight:bold;
     position: absolute;
     display: inline;
-    left: 90%;
+    left: 85%;
     top: 20px;
+    opacity: 0.85;
+}
+
+.previous {
+    font-weight:bold;
+    position: absolute;
+    display: inline;
+    left: 85%;
+    top: 85px;
     opacity: 0.85;
 }
 
@@ -137,7 +143,7 @@ ul {
     font-weight:bold;
     position: absolute;
     display: inline;
-    left: 90%;
+    left: 85%;
     top: 55px;
     opacity: 0.85;
 }

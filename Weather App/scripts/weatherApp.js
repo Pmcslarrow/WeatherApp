@@ -28,6 +28,7 @@ class WeatherApp
         this._humidity = null;
         this._pressure = null;
         this._wind_speed = null;
+        this._prevDays = null;
     }
 
     /* Async Functions used to fetch from the online API  (SETS LATITUDE AND LONGITUDE)*/
@@ -91,12 +92,55 @@ class WeatherApp
                 })
     }
 
+    async getPreviousForcast()
+    {
+        var oneDay = new Date(new Date().setDate(new Date().getDate() - 1));
+        var twoDay = new Date(new Date().setDate(new Date().getDate() - 2));
+        var threeDay = new Date(new Date().setDate(new Date().getDate() - 3));
+        var fourDay = new Date(new Date().setDate(new Date().getDate() - 4));
+
+        const ts1 = oneDay.getTime();
+        const ts2 = twoDay.getTime();
+        const ts3 = threeDay.getTime();
+        const ts4 = fourDay.getTime();
+
+        const unixOne = Math.floor(oneDay.getTime() / 1000);
+        const unixTwo = Math.floor(twoDay.getTime() / 1000);
+        const unixThree = Math.floor(threeDay.getTime() / 1000);
+        const unixFour = Math.floor(fourDay.getTime() / 1000);
+        const unix_list = [unixOne, unixTwo, unixThree, unixFour];
+        let lst = [];
+        for (let i = 0; i < unix_list.length; i++)
+        {
+            await fetch('https://api.openweathermap.org/data/2.5/onecall/timemachine?lat='+ this._lat +'&lon='+ this._long + '&dt='+ unix_list[i] +'&appid=' + this._key)
+            .then(function(resp){ return resp.json()})
+                    .then(function(data){
+                        let temp = 1.8 * (data.current.temp - 273) + 32;
+                        let weather = data.current.weather[0].main;
+                        let day = i;
+                        let record = {day, temp, weather};
+                        lst.push(record);
+                    })
+                    .catch(function(){
+                        console.log("Failed getting previous forcast. \n");
+                    })
+        }
+        this.setPrevDays(lst);
+    
+    }
+
     /* Setters */
+    setPrevDays(lst)
+    {
+        this._prevDays = lst;
+    }
+
     setAdvanced(humidity, pressure, wind_speed)
     {
         this._humidity = humidity;
         this._pressure = pressure;
         this._wind_speed = wind_speed;
+        this.getPreviousForcast();
     }
 
     setLatLong(lat, long)
@@ -141,7 +185,7 @@ class WeatherApp
         */
         for (let i = 0; i < 4; i++)
         {
-            circle_temp[i].innerHTML = inst._Days[i].temperature.toFixed(2);
+            circle_temp[i].innerHTML = inst._Days[i].temperature.toFixed(2) + '&degF';
                         
             switch(inst._Days[i].weather)
             {
@@ -206,6 +250,8 @@ let pressure_val = document.getElementById("pressure_val");
 let wind = document.getElementById("wind_speed");
 let wind_val = document.getElementById("wind_val");
 let curr_img = document.getElementById("curr_img");
+let previous_button = document.getElementById("previous_button");
+let prev_button = document.getElementById("prev_button");
 let advanced_settings = [humidity, pressure, wind];
 
 let images = [{
@@ -273,6 +319,83 @@ advanced_button.addEventListener('click', function(){
     } else {
         advanced_button.setAttribute("data", "off");
         disableAdvanced();
+    }
+})
+
+/* 
+    Switches previous settings by setting the color of the button to activated or not
+    also iterates the prevDays state that holds a list of records of the previous temps and weather conditions
+    and then sets the circles to these values!
+*/
+previous_button.addEventListener('click', function(){
+    let val = previous_button.getAttribute("data");
+    if (val === 'off')
+    {
+        previous_button.setAttribute("data", "on");
+        prev_button.style.backgroundColor = "lightgreen";
+        prev_button.style.color = 'white';
+        for (let i = 0; i < circle_temp.length; i++)
+        {
+            let temp = inst._prevDays[i].temp.toFixed(2);
+            if (unit_button.getAttribute("data") === 'on')
+            {
+                circle_temp[i].innerHTML = FtoC(temp) + '&degC';
+            } else {
+                circle_temp[i].innerHTML = temp + '&degF';
+
+            }
+
+            switch(inst._prevDays[i].weather)
+            {
+                case 'Rain':
+                    day_image[i].src = "./Images/rain.png"; break;
+
+                case 'Clouds':
+                    day_image[i].src = "./Images/clouds.png"; break;
+
+                case 'Clear':
+                    day_image[i].src = "./Images/sunny.png"; break;
+
+                case 'Snow':
+                    day_image[i].src = "./Images/snow.png"; break;
+
+                default:
+                    return;
+            }
+        }
+    } else {
+        previous_button.setAttribute("data", "off");
+        prev_button.style.backgroundColor = null;
+        prev_button.style.color = 'black';
+        for (let i = 0; i < circle_temp.length; i++)
+        {
+            let temp = inst._Days[i].temperature.toFixed(2);
+            if (unit_button.getAttribute("data") === 'on')
+            {
+                circle_temp[i].innerHTML = FtoC(temp) + '&degC';
+            } else {
+                circle_temp[i].innerHTML = temp + '&degF';
+
+            }
+
+            switch(inst._Days[i].weather)
+            {
+                case 'Rain':
+                    day_image[i].src = "./Images/rain.png"; break;
+
+                case 'Clouds':
+                    day_image[i].src = "./Images/clouds.png"; break;
+
+                case 'Clear':
+                    day_image[i].src = "./Images/sunny.png"; break;
+
+                case 'Snow':
+                    day_image[i].src = "./Images/snow.png"; break;
+
+                default:
+                    return;
+            }
+        }
     }
 })
 
