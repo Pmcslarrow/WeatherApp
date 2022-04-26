@@ -15,7 +15,7 @@ class WeatherApp
 {
     constructor ()
     {
-        this._key = "5e482f7159b9e47be7178cdff1c5b019";
+        this._key = "INSERT KEY HERE";
         this._SEARCH_LIMIT = 1;
         this._lat = null; 
         this._long = null;  
