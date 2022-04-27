@@ -1,8 +1,9 @@
-/*  IMPLEMENTATION NOTES
+/*
+IMPLEMENTATION NOTES
 
-    The WeatherApp is initialized to have lots of null values, that 
-    will later scrape the openweathermap.org weather API to fill in these values. 
-    
+    The WeatherApp is initialized to have lots of null values, that
+    will later scrape the openweathermap.org weather API to fill in these values.
+
     Inside the event listeners section at the bottom I wait for the user to enter a city,
     it then calls the instance of the WeatherApp which will async and await fetch of all the information
     through multiple functions which all accomplish the same goal: filling the null values.
@@ -15,14 +16,14 @@ class WeatherApp
 {
     constructor ()
     {
-        this._key = "INSERT KEY HERE";
+        this._key = "5e482f7159b9e47be7178cdff1c5b019";
         this._SEARCH_LIMIT = 1;
-        this._lat = null; 
-        this._long = null;  
-        this._cityName = null; 
-        this._temp = null; 
-        this._highTemp = null; 
-        this._lowTemp = null;  
+        this._lat = null;
+        this._long = null;
+        this._cityName = null;
+        this._temp = null;
+        this._highTemp = null;
+        this._lowTemp = null;
         this._weatherType = null;
         this._Days = null;
         this._humidity = null;
@@ -33,7 +34,7 @@ class WeatherApp
 
     /* Async Functions used to fetch from the online API  (SETS LATITUDE AND LONGITUDE)*/
     async getCityLatLon(city_name) {
-        await fetch('http://api.openweathermap.org/geo/1.0/direct?q=' + city_name + '&limit=' + this._SEARCH_LIMIT + "&appid=" + this._key)  
+        await fetch('http://api.openweathermap.org/geo/1.0/direct?q=' + city_name + '&limit=' + this._SEARCH_LIMIT + "&appid=" + this._key)
             .then(function(resp) { return resp.json() })
             .then(function(data) {
                 inst.setLatLong(data[0].lat, data[0].lon);
@@ -43,7 +44,7 @@ class WeatherApp
         });
     }
 
-    /* Gets the current weather temperatures and type and uses the helper setter function setCurr to set them */
+    /* Gets the current weather temps and type and uses the helper setter function setCurr to set them */
     async getCurrentWeatherData()
     {
         await fetch('https://api.openweathermap.org/data/2.5/weather?lat='+ this._lat + '&lon='+ this._long + '&appid=' + this._key)
@@ -61,11 +62,9 @@ class WeatherApp
                 })
     }
 
-    /* 
+    /*
      Gathers the next 4 days of weather forcast and stores the day, temp (f), and weather
-     inside a record that is then pushed inside of a list, named lst.
-     I then user setForcast(lst) to set this._Days equal to the list of records such that 
-     we can then call this data from the WeatherApp instance 
+     inside a record to set this._Days equal to the list of records 
     */
     async getForcast()
     {
@@ -80,7 +79,7 @@ class WeatherApp
                         let day = forcast[i];
                         let temp = 1.8 * (day.temp.day - 273) + 32;
                         let weather = day.weather[0].main;
-                        let record = { 'day' : i, 'temperature': temp, 'weather' : weather};
+                        let record = { 'day' : i, 'temp': temp, 'weather' : weather};
                         lst.push(record);
                         inst.setForcast(lst);
                     }
@@ -92,6 +91,7 @@ class WeatherApp
                 })
     }
 
+    /* Uses the built in Date library to get the last 4 days of data from the API */
     async getPreviousForcast()
     {
         var oneDay = new Date(new Date().setDate(new Date().getDate() - 1));
@@ -126,7 +126,7 @@ class WeatherApp
                     })
         }
         this.setPrevDays(lst);
-    
+
     }
 
     /* Setters */
@@ -178,33 +178,17 @@ class WeatherApp
         wind_val.innerHTML = this._wind_speed + ' m/s';
 
 
-        /* 
+        /*
         Iterates through the list this._Days which holds a reference
         to DOM img tags and sets the innerHTML into the type of weather and
         sets the image into the icon of the type of weather
         */
         for (let i = 0; i < 4; i++)
         {
-            circle_temp[i].innerHTML = inst._Days[i].temperature.toFixed(2) + '&degF';
-                        
-            switch(inst._Days[i].weather)
-            {
-                case 'Rain':
-                    day_image[i].src = "./Images/rain.png"; break;
-
-                case 'Clouds':
-                    day_image[i].src = "./Images/clouds.png"; break;
-
-                case 'Clear':
-                    day_image[i].src = "./Images/sunny.png"; break;
-
-                case 'Snow':
-                    day_image[i].src = "./Images/snow.png"; break;
-
-                default:
-                    return;
-            }
+            circle_temp[i].innerHTML = inst._Days[i].temp.toFixed(2) + '&degF';
+            setImage(i, inst._Days[i].weather );
         }
+
 
         /* Simply sets the weather icon in the middle of the screen */
         switch(inst._weatherType)
@@ -254,15 +238,6 @@ let previous_button = document.getElementById("previous_button");
 let prev_button = document.getElementById("prev_button");
 let advanced_settings = [humidity, pressure, wind];
 
-let images = [{
-    'Rain' : 'rain.png',
-    'Snow' : 'snow.png',
-    'Cloudy' : 'clouds.png',
-    'Sunny' : 'sunny.png',
-    'Storm' : 'thunderstorm.png'
-}];
-
-
 
 /* EVENT LISTENERS */
 
@@ -275,7 +250,7 @@ userInput.addEventListener("keypress", function(e){
     }
 })
 
-/* 
+/*
 Creates a grayscale effect. The idea I had was that the background may be too
 bright for some users, so it gives you the option to dial it back.
 */
@@ -285,9 +260,9 @@ slider_DOM.oninput = function()
     background_DOM.style.filter = "grayscale(" + val + "%)";
 }
 
-/* 
+/*
 Switches the visibility of the moving menu... When you go inside the object
-it will make the visibility = 'visible' once the menu width is at its max width. 
+it will make the visibility = 'visible' once the menu width is at its max width.
 */
 menu_DOM.addEventListener('transitionend', function()
 {
@@ -297,12 +272,12 @@ menu_DOM.addEventListener('transitionend', function()
     }
 })
 
-/* 
+/*
 Switches the visibility of the moving menu... When you go outside of the object
 it will make the visibility = 'hidden'
 */
 menu_DOM.addEventListener('transitionstart', function(){
-    if(menu_DOM.offsetWidth > 210 && menu_DOM.offsetWidth <= 219)
+    if(menu_DOM.offsetWidth > 200 && menu_DOM.offsetWidth <= 220)
     {
         setCircleState('hidden');
     }
@@ -322,7 +297,7 @@ advanced_button.addEventListener('click', function(){
     }
 })
 
-/* 
+/*
     Switches previous settings by setting the color of the button to activated or not
     also iterates the prevDays state that holds a list of records of the previous temps and weather conditions
     and then sets the circles to these values!
@@ -344,24 +319,7 @@ previous_button.addEventListener('click', function(){
                 circle_temp[i].innerHTML = temp + '&degF';
 
             }
-
-            switch(inst._prevDays[i].weather)
-            {
-                case 'Rain':
-                    day_image[i].src = "./Images/rain.png"; break;
-
-                case 'Clouds':
-                    day_image[i].src = "./Images/clouds.png"; break;
-
-                case 'Clear':
-                    day_image[i].src = "./Images/sunny.png"; break;
-
-                case 'Snow':
-                    day_image[i].src = "./Images/snow.png"; break;
-
-                default:
-                    return;
-            }
+            setImage(i, inst._prevDays[i].weather);
         }
     } else {
         previous_button.setAttribute("data", "off");
@@ -369,7 +327,7 @@ previous_button.addEventListener('click', function(){
         prev_button.style.color = 'black';
         for (let i = 0; i < circle_temp.length; i++)
         {
-            let temp = inst._Days[i].temperature.toFixed(2);
+            let temp = inst._Days[i].temp.toFixed(2);
             if (unit_button.getAttribute("data") === 'on')
             {
                 circle_temp[i].innerHTML = FtoC(temp) + '&degC';
@@ -378,30 +336,14 @@ previous_button.addEventListener('click', function(){
 
             }
 
-            switch(inst._Days[i].weather)
-            {
-                case 'Rain':
-                    day_image[i].src = "./Images/rain.png"; break;
-
-                case 'Clouds':
-                    day_image[i].src = "./Images/clouds.png"; break;
-
-                case 'Clear':
-                    day_image[i].src = "./Images/sunny.png"; break;
-
-                case 'Snow':
-                    day_image[i].src = "./Images/snow.png"; break;
-
-                default:
-                    return;
-            }
+            setImage(i, inst._Days[i].weather);
         }
     }
 })
 
 
-/* 
-Converts all the temperatures that exist on the screen to F or to C depending 
+/*
+Converts all the temps that exist on the screen to F or to C depending
 on the attribute value of unit_button in the DOM
 */
 unit_button.addEventListener('click', function(){
@@ -471,4 +413,25 @@ function setCircleState(state)
     {
         circles[i].style.visibility = state;
     }
+}
+
+function setImage( i, obj )
+{
+  switch(obj)
+  {
+      case 'Rain':
+          day_image[i].src = "./Images/rain.png"; break;
+
+      case 'Clouds':
+          day_image[i].src = "./Images/clouds.png"; break;
+
+      case 'Clear':
+          day_image[i].src = "./Images/sunny.png"; break;
+
+      case 'Snow':
+          day_image[i].src = "./Images/snow.png"; break;
+
+      default:
+          return;
+  }
 }
